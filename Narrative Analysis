@@ -1,0 +1,81 @@
+import os
+import re
+import pandas as pd
+
+# Define the directory containing the kaand text files
+kaand_dir = r"C:\Users\hp\OneDrive\Desktop\Shri Ramcharitramanas"
+
+# Function to read the contents of a Kaand text file
+def read_kaand_text(kaand_file):
+    with open(kaand_file, "r", encoding="utf-8") as file:
+        kaand_text = file.read()
+    return kaand_text
+
+# Function to perform narrative analysis
+def narrative_analysis(kaand_texts):
+    themes = []
+    ram_mentions = []
+    lakshman_mentions = []
+    sita_mentions = []
+    battle_count = []
+    journey_count = []
+    fire_count = []
+    forest_count = []
+
+    for kaand_text in kaand_texts:
+        # Perform theme analysis
+        if "dharma" in kaand_text.lower():
+            themes.append("Dharma")
+        elif "victory" in kaand_text.lower():
+            themes.append("Victory")
+        else:
+            themes.append("None")  # Default value if no themes are found
+
+        # Perform character analysis
+        ram_mentions.append(kaand_text.lower().count("ram"))
+        lakshman_mentions.append(kaand_text.lower().count("lakshman") + kaand_text.lower().count("laksman"))
+        sita_mentions.append(kaand_text.lower().count("sita"))
+
+        # Perform plot point analysis
+        battle_count.append(len(re.findall(r'\bbattle\b', kaand_text, flags=re.IGNORECASE)))
+        journey_count.append(len(re.findall(r'\bjourney\b', kaand_text, flags=re.IGNORECASE)))
+        fire_count.append(len(re.findall(r'\bfire\b', kaand_text, flags=re.IGNORECASE)))
+
+        # Perform symbol analysis
+        forest_count.append(len(re.findall(r'\bforest\b', kaand_text, flags=re.IGNORECASE)))
+
+    # Check if all arrays have the same length
+    array_lengths = [len(themes), len(ram_mentions), len(lakshman_mentions), len(sita_mentions),
+                     len(battle_count), len(journey_count), len(fire_count), len(forest_count)]
+    if len(set(array_lengths)) != 1:
+        raise ValueError("All arrays must be of the same length")
+
+    # Create DataFrame for analysis results
+    df_analysis = pd.DataFrame({
+        "Kaand": range(1, len(kaand_texts) + 1),
+        "Themes": themes,
+        "Ram Mentions": ram_mentions,
+        "Lakshman Mentions": lakshman_mentions,
+        "Sita Mentions": sita_mentions,
+        "Battle Count": battle_count,
+        "Journey Count": journey_count,
+        "Fire Count": fire_count,
+        "Forest Count": forest_count
+    })
+
+    return df_analysis
+
+# Read the contents of each kaand text file
+kaand_texts = []
+kaand_files = [f for f in os.listdir(kaand_dir) if f.endswith(".txt")]
+for kaand_file in kaand_files:
+    kaand_text = read_kaand_text(os.path.join(kaand_dir, kaand_file))
+    kaand_texts.append(kaand_text)
+
+# Perform narrative analysis
+df_narrative_analysis = narrative_analysis(kaand_texts)
+
+# Display the results
+print("Narrative Analysis Results:")
+print(df_narrative_analysis)
+
