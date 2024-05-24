@@ -1,8 +1,9 @@
 import os
 import re
 import pandas as pd
-
-# Define the directory containing the kaand text files
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set(style="whitegrid")
 kaand_dir = r"C:\Users\hp\OneDrive\Desktop\Shri Ramcharitramanas"
 
 # Function to read the contents of a Kaand text file
@@ -15,7 +16,7 @@ def read_kaand_text(kaand_file):
 def narrative_analysis(kaand_texts):
     themes = []
     ram_mentions = []
-    lakshman_mentions = []
+    laksman_mentions = []  # Changed from lakshman_mentions to laksman_mentions
     sita_mentions = []
     battle_count = []
     journey_count = []
@@ -31,12 +32,12 @@ def narrative_analysis(kaand_texts):
         else:
             themes.append("None")  # Default value if no themes are found
 
-        # Perform character analysis
+        # Performing character analysis
         ram_mentions.append(kaand_text.lower().count("ram"))
-        lakshman_mentions.append(kaand_text.lower().count("lakshman") + kaand_text.lower().count("laksman"))
+        laksman_mentions.append(kaand_text.lower().count("laksman"))  # Changed from lakshman to laksman
         sita_mentions.append(kaand_text.lower().count("sita"))
 
-        # Perform plot point analysis
+        # Performing plot point analysis
         battle_count.append(len(re.findall(r'\bbattle\b', kaand_text, flags=re.IGNORECASE)))
         journey_count.append(len(re.findall(r'\bjourney\b', kaand_text, flags=re.IGNORECASE)))
         fire_count.append(len(re.findall(r'\bfire\b', kaand_text, flags=re.IGNORECASE)))
@@ -44,18 +45,18 @@ def narrative_analysis(kaand_texts):
         # Perform symbol analysis
         forest_count.append(len(re.findall(r'\bforest\b', kaand_text, flags=re.IGNORECASE)))
 
-    # Check if all arrays have the same length
-    array_lengths = [len(themes), len(ram_mentions), len(lakshman_mentions), len(sita_mentions),
+    # Checking if all arrays have the same length
+    array_lengths = [len(themes), len(ram_mentions), len(laksman_mentions), len(sita_mentions),
                      len(battle_count), len(journey_count), len(fire_count), len(forest_count)]
     if len(set(array_lengths)) != 1:
         raise ValueError("All arrays must be of the same length")
 
-    # Create DataFrame for analysis results
+    # Creating DataFrame for analysis results
     df_analysis = pd.DataFrame({
         "Kaand": range(1, len(kaand_texts) + 1),
         "Themes": themes,
         "Ram Mentions": ram_mentions,
-        "Lakshman Mentions": lakshman_mentions,
+        "Laksman Mentions": laksman_mentions,  # Changed from lakshman_mentions to laksman_mentions
         "Sita Mentions": sita_mentions,
         "Battle Count": battle_count,
         "Journey Count": journey_count,
@@ -65,17 +66,46 @@ def narrative_analysis(kaand_texts):
 
     return df_analysis
 
-# Read the contents of each kaand text file
+# Reading the contents of each kaand text file
 kaand_texts = []
 kaand_files = [f for f in os.listdir(kaand_dir) if f.endswith(".txt")]
 for kaand_file in kaand_files:
     kaand_text = read_kaand_text(os.path.join(kaand_dir, kaand_file))
     kaand_texts.append(kaand_text)
 
-# Perform narrative analysis
+# Performing narrative analysis
 df_narrative_analysis = narrative_analysis(kaand_texts)
 
-# Display the results
+# Visualizing the narrative analysis results
+def visualize_narrative_analysis(df):
+    plt.figure(figsize=(12, 8))
+
+    # Ploting Ram mentions
+    plt.subplot(2, 2, 1)
+    sns.barplot(data=df, x="Kaand", y="Ram Mentions", color="skyblue")
+    plt.title("Ram Mentions")
+
+    # Ploting Laksman mentions
+    plt.subplot(2, 2, 2)
+    sns.barplot(data=df, x="Kaand", y="Laksman Mentions", color="salmon")
+    plt.title("Laksman Mentions")
+
+    # Ploting Sita mentions
+    plt.subplot(2, 2, 3)
+    sns.barplot(data=df, x="Kaand", y="Sita Mentions", color="lightgreen")
+    plt.title("Sita Mentions")
+
+    # Plot Battle count
+    plt.subplot(2, 2, 4)
+    sns.barplot(data=df, x="Kaand", y="Battle Count", color="gold")
+    plt.title("Battle Count")
+
+    plt.tight_layout()
+    plt.show()
+
+# Displaying the results
 print("Narrative Analysis Results:")
 print(df_narrative_analysis)
 
+# Visualizing the narrative analysis results
+visualize_narrative_analysis(df_narrative_analysis)
