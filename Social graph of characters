@@ -1,0 +1,76 @@
+import os
+import nltk
+import networkx as nx
+import matplotlib.pyplot as plt
+from nltk.tokenize import sent_tokenize
+
+# Directory containing text files
+directory = r"C:\Users\hp\OneDrive\Desktop\Shri Ramcharitramanas"
+
+# Function to extract sentences containing the identified characters
+def extract_sentences_with_characters(file_path, characters):
+    sentences_with_characters = []
+    with open(file_path, 'r', encoding='utf-8') as file:
+        text = file.read().upper()
+        sentences = sent_tokenize(text)
+        for sentence in sentences:
+            for character in characters:
+                if character in sentence:
+                    sentences_with_characters.append((sentence, character))
+                    break
+    return sentences_with_characters
+
+# Function to compute co-occurrence matrix
+def compute_co_occurrence_matrix(sentences_with_characters, characters):
+    co_occurrence_matrix = nltk.FreqDist((char1, char2) for sentence, char1 in sentences_with_characters
+                                                        for char2 in characters if char1 != char2 and char2 in sentence)
+    return co_occurrence_matrix
+
+# Function to build social graph from co-occurrence matrix
+def build_social_graph(co_occurrence_matrix):
+    social_graph = nx.Graph()
+    for (char1, char2), weight in co_occurrence_matrix.items():
+        social_graph.add_edge(char1, char2, weight=weight)
+    return social_graph
+
+# Identify characters
+characters = ["RAM", "SITA", "RAVAN", "LAKSMAN", "HANUMAN"]
+
+# Extract sentences containing the identified characters
+sentences_with_characters = []
+for filename in os.listdir(directory):
+    if filename.endswith(".txt"):
+        file_path = os.path.join(directory, filename)
+        sentences_with_characters.extend(extract_sentences_with_characters(file_path, characters))
+
+# Compute co-occurrence matrix
+co_occurrence_matrix = compute_co_occurrence_matrix(sentences_with_characters, characters)
+
+# Build social graph from co-occurrence matrix
+social_graph = build_social_graph(co_occurrence_matrix)
+
+# Visualize social graph
+plt.figure(figsize=(12, 8))
+
+# Positions for all nodes
+pos = nx.spring_layout(social_graph, seed=42)
+
+# Draw nodes
+nx.draw_networkx_nodes(social_graph, pos, node_color='pink', node_size=2000, alpha=0.8)
+
+# Draw edges
+nx.draw_networkx_edges(social_graph, pos, width=2, alpha=0.6, edge_color='gray')
+
+# Draw node labels
+nx.draw_networkx_labels(social_graph, pos, font_size=12, font_weight='bold')
+
+# Draw edge labels (weights)
+labels = nx.get_edge_attributes(social_graph, 'weight')
+nx.draw_networkx_edge_labels(social_graph, pos, edge_labels=labels, font_size=10)
+
+# Set plot title
+plt.title('Social Graph of Characters')
+
+# Show plot
+plt.axis('off')
+plt.show()
