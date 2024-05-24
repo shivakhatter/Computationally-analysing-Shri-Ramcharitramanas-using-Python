@@ -1,0 +1,52 @@
+import os
+
+kaand_dir = r"C:\Users\hp\OneDrive\Desktop\Shri Ramcharitramanas"
+
+texts = {}
+for file_name in os.listdir(kaand_dir):
+    # Check if the file is a text file
+    if file_name.endswith(".txt"):
+        # Extract the Kaand name from the file name
+        kaand_name = os.path.splitext(file_name)[0]
+        
+        # Read the text from the file
+        with open(os.path.join(kaand_dir, file_name), "r", encoding="utf-8") as file:
+            kaand_text = file.read()
+        
+        texts[kaand_name] = kaand_text
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.probability import FreqDist
+from nltk.corpus import stopwords
+
+# Download stopwords 
+nltk.download('stopwords')
+
+# Defining a set of stopwords
+stop_words = set(stopwords.words('english'))
+
+# Initializing an empty dictionary to store the most common words for each kaand
+most_common_words = {}
+
+# Tokenizing the text and find the most common words for each kaand
+for kaand, text in texts.items():
+    # Tokenize the text
+    tokens = word_tokenize(text)
+    
+    # Filtering out non-alphabetic tokens, convert to lowercase, and remove stopwords
+    words = [word.lower() for word in tokens if word.isalpha() and word.lower() not in stop_words]
+    
+    # Calculating word frequency distribution
+    freq_dist = FreqDist(words)
+    
+    # 20 most common words
+    most_common = freq_dist.most_common(20)
+    
+    # Storing the most common words for this kaand
+    most_common_words[kaand] = most_common
+
+for kaand, common_words in most_common_words.items():
+    print(f"Most common words in {kaand}:")
+    for word, freq in common_words:
+        print(f"{word}: {freq}")
+    print()
