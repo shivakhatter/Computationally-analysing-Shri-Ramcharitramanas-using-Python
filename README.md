@@ -1,2 +1,4 @@
 # Computationally-analysing-Shri-Ramcharitramanas-using-Python
 This project employs computational analysis to explore character relationships in Ramcharitmanas. Through natural language processing and network analysis, it delves into interactions, roles, and centrality. Insights gained enhance literary analysis and offer a framework adaptable to other texts.
+The Computational Analysis of Shri Ramcharitmanas project utilizes sentiment analysis and advanced computational methodologies to uncover emotional nuances and thematic patterns within the revered Hindu scripture. By leveraging natural language processing and machine learning techniques, the project aims to decode the emotional portrayals of characters and events in Shri Ramcharitmanas, offering a unique perspective on the narrative brilliance of the epic.
+
