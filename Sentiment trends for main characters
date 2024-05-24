@@ -1,0 +1,64 @@
+import matplotlib.pyplot as plt
+
+# Downloading VADER lexicon and initializing sentiment analyzer
+nltk.download('vader_lexicon')
+sid = SentimentIntensityAnalyzer()
+
+# Defining the characters
+characters = ["Rama", "Sita", "Hanuman", "Ravana", "Laksmana"]
+
+# Initializing sentiment scores for each character
+character_sentiment = {character: [] for character in characters}
+
+directory = r"C:\Users\hp\OneDrive\Desktop\Shri Ramcharitramanas"
+
+# Define kaand files as a dictionary
+kaand_files = {
+    "Baal Kaand": r"C:\Users\hp\OneDrive\Desktop\Shri Ramcharitramanas\1 baalkaand.txt",
+    "Ayodhya Kaand": r"C:\Users\hp\OneDrive\Desktop\Shri Ramcharitramanas\2 ayodhyakaand.txt",
+    "Aranya Kaand": r"C:\Users\hp\OneDrive\Desktop\Shri Ramcharitramanas\3 aranyakaand.txt", 
+    "Kishkindha Kaand": r"C:\Users\hp\OneDrive\Desktop\Shri Ramcharitramanas\4 kishkindhakaand.txt",
+    "Sundar Kaand": r"C:\Users\hp\OneDrive\Desktop\Shri Ramcharitramanas\5 sundarkaand.txt",
+    "Lanka Kaand": r"C:\Users\hp\OneDrive\Desktop\Shri Ramcharitramanas\6 lankakaand.txt",
+    "Uttar Kaand": r"C:\Users\hp\OneDrive\Desktop\Shri Ramcharitramanas\7 uttarkaand.txt"
+}
+
+# Function to calculate sentiment score for a given text
+def calculate_sentiment(text):
+    scores = sid.polarity_scores(text)
+    return scores['compound']
+
+# Looping through each kaand
+for kaand_name, file_path in kaand_files.items():
+    with open(file_path, "r", encoding="utf-8") as file:
+        kaand_text = file.read()
+        # Split the text into chapters
+        chapters = re.split(r'Chapter \d+', kaand_text)
+        for chapter_num, chapter_text in enumerate(chapters[1:], start=1):
+            # Calculate sentiment score for each character in the chapter
+            for character in characters:
+                # Count occurrences of the character in this chapter
+                character_count = chapter_text.lower().count(character.lower())
+                if character_count > 0:
+                    # Calculate sentiment score only for the paragraphs mentioning the character
+                    paragraphs = re.split(r'\n\s*\n', chapter_text.strip())
+                    character_paragraphs = [para for para in paragraphs if character.lower() in para.lower()]
+                    for para in character_paragraphs:
+                        sentiment_score = calculate_sentiment(para)
+                        character_sentiment[character].append(sentiment_score)
+
+# Ploting line plot for sentiment trends of each character
+plt.figure(figsize=(12, 6))
+
+for character, sentiment_scores in character_sentiment.items():
+    plt.plot(range(1, min(len(sentiment_scores) + 1, 201)), sentiment_scores[:200], label=character)
+
+plt.title("Sentiment Trends for Characters in Ramcharitmanas (Chapter-wise)", fontsize=16)
+plt.xlabel("Chapters", fontsize=14)
+plt.ylabel("Sentiment Score", fontsize=14)
+plt.legend(loc='upper right', fontsize=12)
+plt.grid(True)
+plt.tight_layout()
+
+# Show plot
+plt.show()
