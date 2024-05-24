@@ -1,0 +1,45 @@
+import matplotlib.pyplot as plt
+import numpy as np
+from collections import defaultdict
+
+# Function to aggregate emotion scores for each kaand
+def aggregate_scores_for_kaand(character_scores):
+    kaand_scores = defaultdict(lambda: defaultdict(int))
+    for filename, scores in character_scores.items():
+        kaand = filename.split()[0]  # Extract kaand number from filename
+        for character, emotion_scores in scores.items():
+            if emotion_scores:
+                for emotion, score in emotion_scores.items():
+                    kaand_scores[kaand][(character, emotion)] += score
+    return kaand_scores
+
+# Aggregate emotion scores for each kaand
+aggregated_scores = aggregate_scores_for_kaand(character_scores)
+
+# Plotting aggregated emotion scores for each kaand
+emotions = ['positive', 'negative']
+n_emotions = len(emotions)
+kaands = sorted(aggregated_scores.keys())
+n_kaands = len(kaands)
+
+fig, ax = plt.subplots(nrows=1, ncols=n_kaands, figsize=(15, 6), sharey=True)
+
+for i, kaand in enumerate(kaands):
+    if aggregated_scores[kaand]:
+        character_emotions = defaultdict(list)
+        for (character, emotion), score in aggregated_scores[kaand].items():
+            character_emotions[character].append((emotion, score))
+
+        for character, emotion_scores in character_emotions.items():
+            ax[i].bar(character, [score for _, score in emotion_scores], label=character)
+        
+        ax[i].set_title(f"Kaand {kaand}")
+        ax[i].set_xlabel("Emotion")
+        ax[i].set_ylabel("Score")
+        ax[i].legend()
+
+    # Rotate x-axis labels by 45 degrees
+    ax[i].tick_params(axis='x', rotation=45)
+
+plt.tight_layout()
+plt.show()
